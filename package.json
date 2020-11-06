@@ -1,0 +1,32 @@
+{
+  "name": "Nodejs-CMS",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Loufi1/Nodejs-CMS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Loufi1/Nodejs-CMS/issues"
+  },
+  "homepage": "https://github.com/Loufi1/Nodejs-CMS#readme",
+  "dependencies": {
+    "mongodb": "^3.6.2",
+    "nodemon": "^2.0.6"
+  },
+  "devDependencies": {
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.1.2"
+  }
+}
