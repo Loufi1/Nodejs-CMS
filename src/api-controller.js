@@ -1,6 +1,7 @@
 const http = require('http');
+const url = require('url');
 const { Http2ServerResponse } = require('http2');
-const { HttpStatusCode } = require('./utils/http-error');
+const { HttpStatusCode } = require('./utils/http-status-code');
 
 class api {
     routes = [];
@@ -9,25 +10,39 @@ class api {
     constructor() {
         this.server = http.createServer((req, res) => {
             res.setHeader('Content-Type', 'application/json');
+
+            console.log('routes:', this.routes)
+            const { pathname, query } = url.parse(req.url, true);
+            req.url = pathname;
+            req.query = query;
+
             if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH' ) {
-                let body = [];
-                req
-                  .on('data', (d) => {
-                      body.push(d);
-                  })
-                  .on('end', () => {
-                      body = Buffer.concat(body).toString();
-                      req.body = JSON.parse(body);
-                      this.redirect(req, res);
-                  });
+                this._parseBody(req, res);
             } else {
-                this.redirect(req, res)
+                this._redirect(req, res);
             }
         });
     }
 
-    redirect(req, res) {
-        this.index = this.routes.findIndex(elem => elem.route === req.url && elem.method === req.method);
+    _parseBody(req, res) {
+        let body = [];
+        req
+          .on('data', (d) => {
+              body.push(d);
+          })
+          .on('end', () => {
+              body = Buffer.concat(body).toString();
+              req.body = JSON.parse(body);
+              this._redirect(req, res);
+          });
+    }
+
+    _uniformize(path) { return path.endsWith('/') ? path : path + '/'; }
+
+    _redirect(req, res) {
+        this.index = this.routes.findIndex(
+          elem => this._uniformize(elem.route) === this._uniformize(req.url) && elem.method === req.method
+        );
         if (this.index !== -1) {
             try {
                 this.routes[this.index].callback(req, res)
@@ -50,29 +65,12 @@ class api {
         callback(path, this);
     }
 
-    duplicate(route, callback, method) {
-        if (route.endsWith('/')) {
-            this.routes.push({
-                route: route.slice(0, -1),
-                callback: callback,
-                method: method,
-            });
-        } else {
-            this.routes.push({
-                route: route + '/',
-                callback: callback,
-                method: method,
-            })
-        }
-    }
-
     get(route, callback) {
         this.routes.push({
             route: route,
             callback: callback,
             method: 'GET',
         });
-        this.duplicate(route, callback, 'GET');
     }
 
     post(route, callback) {
@@ -81,7 +79,6 @@ class api {
             callback: callback,
             method: 'POST',
         });
-        this.duplicate(route, callback, 'POST');
     }
 
     put(route, callback) {
@@ -90,7 +87,6 @@ class api {
             callback: callback,
             method: 'PUT',
         });
-        this.duplicate(route, callback, 'PUT');
     }
 
     patch(route, callback) {
@@ -99,7 +95,6 @@ class api {
             callback: callback,
             method: 'PATCH',
         });
-        this.duplicate(route, callback, 'PATCH');
     }
 
     delete(route, callback) {
@@ -108,9 +103,7 @@ class api {
             callback: callback,
             method: 'DELETE',
         });
-        this.duplicate(route, callback, 'DELETE');
     }
-
 }
 
 module.exports.api = api;

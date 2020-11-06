@@ -1,4 +1,4 @@
-const { HttpStatusCode } = require('../../utils/http-error');
+const { HttpStatusCode } = require('../../utils/http-status-code');
 
 function routes(path, app) {
   app.post(path, (req, res) => {
