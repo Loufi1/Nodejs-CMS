@@ -4,17 +4,20 @@ const user = 'user';
 const pass = 'passwd';
 const db_url = 'localhost:27017/cms';
 
-const client = new MongoClient(`mongodb://${user}:${pass}@${db_url}`, { useUnifiedTopology: true });
+const client = new MongoClient(`mongodb://${user}:${pass}@${db_url}`, {
+  useUnifiedTopology: true,
+});
 
-client.connect()
+client
+  .connect()
   .then(() => {
-  console.log(`connected to database`);
+    console.log(`connected to database`);
   })
   .catch((e) => {
-  console.error(e);
+    console.error(e);
   });
 
-  /*
+/*
     Data Format:
 
     User {
