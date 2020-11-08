@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Loufi1/Nodejs-CMS#readme",
   "dependencies": {
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.2",
     "nodemon": "^2.0.6"
   },
