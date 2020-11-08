@@ -4,9 +4,6 @@ const bodyParser = require('./middlewares/body-parser');
 const queryParser = require('./middlewares/query-parser');
 const cookieParser = require('./middlewares/cookie-parser');
 
-const { client } = require('./utils/mongo-client');
-const { compare, hash512 } = require('./utils/hash');
-
 const port = 3000;
 const hostname = '127.0.0.1';
 const app = new HomemadeExpress();

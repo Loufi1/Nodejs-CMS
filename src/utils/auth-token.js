@@ -17,12 +17,16 @@ const createRefreshToken = (userId) => {
 };
 
 const isAuthenticated = (req) => {
-  if (!req.headers['authorization']) throw new Error('You need to login.');
-  return verify(authorization.split(' ')[1], ACCESS_TOKEN_SECRET).userId;
+  try {
+    if (!req.headers['authorization']) throw new Error('You need to login.');
+    return verify(req.headers.authorization.split(' ')[1], ACCESS_TOKEN_SECRET).userId;
+  } catch (e) {
+    return null;
+  }
 };
 
 module.exports = {
   createAccessToken,
   createRefreshToken,
-  isAuthenticated
+  isAuthenticated,
 };

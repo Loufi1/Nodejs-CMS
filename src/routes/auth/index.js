@@ -23,11 +23,13 @@ function routes(path, app) {
       res.send({ error: 'Email already in use' });
       return;
     }
-
+    const roles = ['Author'];
+    const isAdmin = (await collection.estimatedDocumentCount()) === 0;
+    if (isAdmin) roles.push('Admin');
     const user = {
       email,
       password: hashedPasswd,
-      roles: ['User'],
+      roles,
       profilPic:
         'https://cms.qz.com/wp-content/uploads/2017/03/twitter_egg_blue.png',
     };

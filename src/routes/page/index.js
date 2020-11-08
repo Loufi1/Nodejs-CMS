@@ -1,4 +1,6 @@
 const { HttpStatusCode } = require('../../utils/http-status-code');
+const { isAuthenticated } = require('../../utils/auth-token');
+const { client } = require('../../utils/mongo-client');
 
 function routes(path, app) {
   app.get(path, (req, res) => {

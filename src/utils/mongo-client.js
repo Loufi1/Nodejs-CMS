@@ -23,7 +23,7 @@ client
     User {
       username: string
       password: string (Hash)
-      roles: string[] ('User' | 'Author' | 'Admin')
+      roles: string[] ('Author' | 'Admin')
       profilePic : string (url, avec valeur par default) (bonus)
     }
 
