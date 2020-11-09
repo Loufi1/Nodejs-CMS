@@ -18,8 +18,8 @@ function routes(path, app) {
     if (page) {
       articles = articles.slice((page - 1) * per_page, page * per_page);
     }
-    //TODO: implem this: get an list of article
-    res.statusCode = HttpStatusCode.NOT_IMPLEMENTED;
+
+    res.statusCode = HttpStatusCode.OK;
     res.send(articles);
   });
 }
