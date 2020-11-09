@@ -19,8 +19,10 @@ const createRefreshToken = (userId) => {
 const isAuthenticated = (req) => {
   try {
     if (!req.headers['authorization']) throw new Error('You need to login.');
-    return verify(req.headers.authorization.split(' ')[1], ACCESS_TOKEN_SECRET).userId;
+    return verify(req.headers.authorization.split(' ')[1], ACCESS_TOKEN_SECRET)
+      .userId;
   } catch (e) {
+    console.error(e);
     return null;
   }
 };

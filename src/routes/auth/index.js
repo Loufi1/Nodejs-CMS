@@ -57,10 +57,10 @@ function routes(path, app) {
       return;
     }
 
-    const access_token = createAccessToken(user._id);
+    const access_token = createAccessToken(user.email);
     const accessDate = new Date();
     accessDate.setDate(accessDate.getMinutes() + 20);
-    const refresh_token = createRefreshToken(user._id);
+    const refresh_token = createRefreshToken(user.email);
     const refreshDate = new Date();
     refreshDate.setDate(refreshDate.getDate() + 7);
 

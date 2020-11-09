@@ -12,10 +12,7 @@ app.use(queryParser);
 app.use(bodyParser);
 app.use(cookieParser);
 
-app.get('/test', (req, res) => {
-  console.log('/test', req.cookies);
-  // res.setCookie('toto', 'tutu');
-  res.clearCookie('toto');
+app.get('/test', async (req, res) => {
   res.statusCode = 200;
   res.end();
 });
