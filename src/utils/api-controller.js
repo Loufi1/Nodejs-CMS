@@ -3,8 +3,8 @@ const { HttpStatusCode } = require('./http-status-code');
 
 class api {
     routes = [];
+    paramRoutes = [];
     middlewares = [];
-    index = -1;
 
     constructor() {
         this.middlewares.push({
@@ -42,7 +42,7 @@ class api {
     }
 
     get(route, callback) {
-        this.routes.push({
+        (route.includes(':') ? this.paramRoutes : this.routes).push({
             route: route,
             callback: callback,
             method: 'GET',
@@ -50,7 +50,7 @@ class api {
     }
 
     post(route, callback) {
-        this.routes.push({
+        (route.includes(':') ? this.paramRoutes : this.routes).push({
             route: route,
             callback: callback,
             method: 'POST',
@@ -58,7 +58,7 @@ class api {
     }
 
     put(route, callback) {
-        this.routes.push({
+        (route.includes(':') ? this.paramRoutes : this.routes).push({
             route: route,
             callback: callback,
             method: 'PUT',
@@ -66,7 +66,7 @@ class api {
     }
 
     patch(route, callback) {
-        this.routes.push({
+        (route.includes(':') ? this.paramRoutes : this.routes).push({
             route: route,
             callback: callback,
             method: 'PATCH',
@@ -74,7 +74,7 @@ class api {
     }
 
     delete(route, callback) {
-        this.routes.push({
+        (route.includes(':') ? this.paramRoutes : this.routes).push({
             route: route,
             callback: callback,
             method: 'DELETE',
@@ -83,23 +83,57 @@ class api {
 
     _uniformize(path) { return path.endsWith('/') ? path : path + '/'; }
 
+    async _callRoute(req, res, callback) {
+        try {
+            await callback(req, res)
+        } catch (e) {
+            console.error(e);
+            res.statusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
+            res.end();
+        }
+    }
+
     async _redirect(req, res) {
-        this.index = this.routes.findIndex(
+        const index = this.routes.findIndex(
           elem => this._uniformize(elem.route) === this._uniformize(req.url) && elem.method === req.method
         );
-        if (this.index !== -1) {
-            try {
-                await this.routes[this.index].callback(req, res)
-            } catch (e) {
-                console.error(e);
-                res.statusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
-                res.end();
-            }
+        if (index !== -1) {
+            this._callRoute(req, res, this.routes[index].callback)
+        } else {
+            this._redirectParamRoutes(req, res);
+        }
+    }
+
+    async _redirectParamRoutes(req, res) {
+        const index = this.paramRoutes.findIndex(
+          elem => {
+              if (elem.method !== req.method) return false;
+              const urlArray = this._uniformize(req.url).split('/');
+              const routeArray = this._uniformize(elem.route).split('/');
+              if (urlArray.length !== routeArray.length) return false;
+              let match = true;
+              routeArray.forEach((e, i) => {
+                  if (e.includes(':')) return;
+                  if (e !== urlArray[i]) match = false;
+              });
+              req.params = {};
+              if (match) {
+                  routeArray.forEach((e, i) => {
+                      if (e.includes(':')) req.params = { ...req.params, [e.substring(1)]: urlArray[i] }
+                  });
+                  return true;
+              }
+              return false;
+          }
+        );
+        if (index !== -1) {
+            this._callRoute(req, res, this.paramRoutes[index].callback);
         } else {
             res.statusCode = HttpStatusCode.NOT_FOUND;
             res.end();
         }
     }
+
 }
 
 module.exports.api = api;
