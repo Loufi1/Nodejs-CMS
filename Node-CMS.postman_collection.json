@@ -61,6 +61,62 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNTA1NjI5NywiZXhwIjoxNjA1MDU3NDk3fQ.qpFji6E0kjcd3O96pIi_wPm9FLKhkQXjHERG2fLp2xg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/auth/me",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNTA1NjI5NywiZXhwIjoxNjA1MDU3NDk3fQ.qpFji6E0kjcd3O96pIi_wPm9FLKhkQXjHERG2fLp2xg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/auth/refresh",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -76,7 +132,35 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNDg3ODQyMywiZXhwIjoxNjA0ODc5NjIzfQ.xo5n_LyE5IX1lFeH9SAw1a4u--8A-U-Lb10F1tyvXFQ",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNTA0Mjc2MiwiZXhwIjoxNjA1MDQzOTYyfQ.YrtHI0xBuaf95KaPKSHIvESBgUBLa_a9-Dp2yMA_4Dk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/page/my-nice-p",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"page",
+								"my-nice-p"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNTA0NDY1NCwiZXhwIjoxNjA1MDQ1ODU0fQ.SShkhpG7KEyVuQy8OVIuIKIAkfod097-vcJCQXo-2t0",
 									"type": "string"
 								}
 							]
@@ -85,7 +169,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"My Nice Page\",\n    \"content\": \"My very first page i post that im very proud of\"\n}",
+							"raw": "{\n    \"title\": \"My Another Page\",\n    \"content\": \"My very first page i post that im very proud of\",\n    \"publishDate\": \"2020-11-15T23:34:02.638Z\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -99,6 +183,117 @@
 							],
 							"path": [
 								"page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNTA1MTg0OCwiZXhwIjoxNjA1MDUzMDQ4fQ.Ojl1rMIKbMW1n6CRAu1LFKlCaOXrFcLCeGak9L-BtAY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/page/my-page",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"page",
+								"my-page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNTA1MTg0OCwiZXhwIjoxNjA1MDUzMDQ4fQ.Ojl1rMIKbMW1n6CRAu1LFKlCaOXrFcLCeGak9L-BtAY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/page/my-page",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"page",
+								"my-page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNTA1MzA4NiwiZXhwIjoxNjA1MDU0Mjg2fQ.nmuMkIjfrUqCgf8jvY3kOeQ_KFoW3UsKJgw4dfsa25Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/pages?per_page=5&page=1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"pages"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "5"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -192,17 +387,27 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "test",
+			"name": "ping",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJNYW5pYWtrQGVtYWlsLmNvbSIsImlhdCI6MTYwNTAyNTYwNSwiZXhwIjoxNjA1MDI2ODA1fQ.euhnzwv17mtaKyQfMJhh8P2An4MZpiJs4DeD_jrDdc8",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/test",
+					"raw": "{{URL}}/ping",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
-						"test"
+						"ping"
 					]
 				}
 			},
