@@ -26,10 +26,11 @@ fi
 printf '\n'
 
 printf 'POST localhost:3000/article:\n'
-output=$(curl -s -d '{"title":"Hello World 3", "content":"lorem ipsum"}' -H "Authorization: jwt $token" -H "Content-Type: application/json" -X POST 'localhost:3000/article')
+output=$(curl -s -d '{"title":"Hello World", "content":"lorem ipsum"}' -H "Authorization: jwt $token" -H "Content-Type: application/json" -X POST 'localhost:3000/article')
 error=$(echo $output | jq -r .error)
-printf '\terror -> %s' $error
-printf '\n'
+slug=$(echo $output | jq -r .slug)
+printf '\terror -> %s\n' $error
+printf '\tslug -> %s\n' $slug
 
 if [[ $error = null ]]
 then
@@ -38,4 +39,14 @@ else
     printf '\tpost created -> false'
 fi
 
+printf '\n'
+
+printf 'POST localhost:3000/article/slug:\n'
+output=$(curl -s -H "Authorization: jwt $token" -X GET "localhost:3000/article/$slug")
+print $output
+printf '\n'
+
+printf 'DELETE localhost:3000/article/slug:\n'
+output=$(curl -s -H "Authorization: jwt $token" -X DELETE "localhost:3000/article/$slug")
+print $output
 printf '\n'

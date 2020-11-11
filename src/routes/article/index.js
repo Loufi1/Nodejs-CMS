@@ -3,10 +3,19 @@ const { isAuthenticated } = require('../../utils/auth-token');
 const { client } = require('../../utils/mongo-client');
 
 function routes(path, app) {
-  app.get(path, (req, res) => {
-    //TODO: implem this: get an article from it's slug
-    res.statusCode = HttpStatusCode.NOT_IMPLEMENTED;
-    res.end();
+  app.get(path + '/:slug', async (req, res) => {
+    const slug = req.params.slug;
+    const collection = client.db().collection('posts');
+    const article = await collection.findOne({ slug, type: 'ARTICLE' });
+
+    if (!article) {
+      res.statusCode = HttpStatusCode.NOT_FOUND;
+      res.send({ error: 'Article not found' });
+      return;
+    }
+
+    res.statusCode = HttpStatusCode.OK;
+    res.send(article);
   });
 
   app.post(path, async (req, res) => {
@@ -56,16 +65,77 @@ function routes(path, app) {
     res.send(result.ops[0]);
   });
 
-  app.put(path + '/', (req, res) => {
-    //TODO: implem this: modify field of an article
-    res.statusCode = HttpStatusCode.NOT_IMPLEMENTED;
-    res.end();
+  app.put(path + '/', async (req, res) => {
+    if (!isAuthenticated(req)) {
+      res.statusCode = HttpStatusCode.UNAUTHORIZED;
+      res.end();
+      return;
+    }
+
+    const slug = req.params.slug;
+    const collection = client.db().collection('posts');
+    const page = await collection.findOne({ type: 'ARTICLE', slug });
+    if (!page) {
+      res.statusCode = HttpStatusCode.NOT_FOUND;
+      res.end();
+      return;
+    }
+
+    const { title, content, author, publishDate } = req.body;
+    const data = { title, content, author, publishDate };
+    Object.keys(data).forEach((e) => {
+      if (data[e] === undefined) delete data[e];
+    });
+    if (data.title !== undefined && data.title.trim().length === 0) {
+      res.statusCode = HttpStatusCode.BAD_REQUEST;
+      res.send({ error: 'Title cannot be empty' });
+      return;
+    }
+
+    if (data.title !== undefined) {
+      const formatedTitle = data.title
+          .trim()
+          .split(' ')
+          .filter((f) => !!f)
+          .join(' ');
+      data.slug = formatedTitle.split(' ').join('-').toLowerCase();
+      const alreadyOne = await collection.findOne({
+        type: 'ARTICLE',
+        slug: data.slug,
+      });
+      if (alreadyOne) {
+        res.statusCode = HttpStatusCode.NOT_FOUND;
+        res.send({ error: `new slug ${data.slug} already exist` });
+        return;
+      }
+    }
+    const result = await collection.findOneAndUpdate(
+        { type: 'ARTICLE', slug },
+        {
+          $set: {
+            ...data,
+            updatedAt: new Date(),
+          },
+        },
+        { returnOriginal: false }
+    );
+    res.statusCode = HttpStatusCode.OK;
+    res.send({ ...result.value, type: undefined });
   });
 
-  app.delete(path + '/', (req, res) => {
-    //TODO: implem this: delete an article
-    res.statusCode = HttpStatusCode.NOT_IMPLEMENTED;
-    res.end();
+  app.delete(path + '/:slug', async (req, res) => {
+    const slug = req.params.slug;
+
+    const collection = client.db().collection('posts');
+    const result = await collection.deleteOne({ slug, type: 'ARTICLE' });
+
+    if (result.deletedCount === 1) {
+      res.statusCode = HttpStatusCode.OK;
+      res.end();
+    } else {
+      res.statusCode = HttpStatusCode.NOT_FOUND;
+      res.end();
+    }
   });
 }
 
