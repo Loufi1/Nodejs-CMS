@@ -12,7 +12,9 @@ function routes(path, app) {
     );
     await result.forEach((e) => pages.push(e));
     if (!isAuthenticated(req)) {
-      pages = pages.filter((f) => new Date(f.publishDate) < new Date());
+      pages = pages.filter(
+        (f) => f.publishDate && new Date(f.publishDate) < new Date()
+      );
     }
     const { per_page = 20, page } = req.query;
     if (page) {

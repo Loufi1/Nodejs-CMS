@@ -18,12 +18,19 @@ const createRefreshToken = (userId) => {
 
 const isAuthenticated = (req) => {
   try {
-    if (!req.headers['authorization']) throw new Error('You need to login.');
+    if (!req.headers['authorization']) return undefined;
     return verify(req.headers.authorization.split(' ')[1], ACCESS_TOKEN_SECRET)
       .userId;
   } catch (e) {
-    console.error(e);
-    return null;
+    return undefined;
+  }
+};
+
+const verifyRefresh = (token) => {
+  try {
+    return verify(token, REFRESH_TOKEN_SECRET).userId;
+  } catch (e) {
+    return undefined;
   }
 };
 
@@ -31,4 +38,5 @@ module.exports = {
   createAccessToken,
   createRefreshToken,
   isAuthenticated,
+  verifyRefresh
 };

@@ -119,7 +119,7 @@ class api {
               req.params = {};
               if (match) {
                   routeArray.forEach((e, i) => {
-                      if (e.includes(':')) req.params = { ...req.params, [e.substring(1)]: urlArray[i] }
+                      if (e.includes(':')) req.params[e.substring(1)] = urlArray[i];
                   });
                   return true;
               }
