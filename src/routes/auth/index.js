@@ -4,6 +4,8 @@ const hash = require('../../utils/hash');
 const {
   createAccessToken,
   createRefreshToken,
+  isAuthenticated,
+  verifyRefresh
 } = require('../../utils/auth-token');
 
 function routes(path, app) {
@@ -59,12 +61,12 @@ function routes(path, app) {
 
     const access_token = createAccessToken(user.email);
     const accessDate = new Date();
-    accessDate.setDate(accessDate.getMinutes() + 20);
+    accessDate.setMinutes(accessDate.getMinutes() + 20);
     const refresh_token = createRefreshToken(user.email);
     const refreshDate = new Date();
     refreshDate.setDate(refreshDate.getDate() + 7);
 
-    const filter = { _id: user._id };
+    const filter = { email };
     const updateOrder = {
       $set: {
         refresh_token: {
@@ -77,11 +79,73 @@ function routes(path, app) {
     res.setCookie('refresh_token', refresh_token, { expires: refreshDate });
     res.statusCode = HttpStatusCode.OK;
     res.send({
-      ...user,
       access_token: { token: access_token, expires: accessDate },
-      refresh_token: undefined,
-      password: undefined,
     });
+  });
+
+  app.get(path + '/me', async (req, res) => {
+    const email = isAuthenticated(req);
+    if (!email) {
+      res.statusCode = HttpStatusCode.UNAUTHORIZED;
+      res.end();
+      return;
+    }
+    const user = await client
+      .db()
+      .collection('users')
+      .findOne({ email }, { projection: { password: 0 } });
+    if (!user) {
+      res.statusCode = HttpStatusCode.NOT_FOUND;
+      res.end();
+      return;
+    }
+    res.statusCode = HttpStatusCode.OK;
+    res.send(user);
+  });
+
+  app.get(path + '/refresh', async (req, res) => {
+    const token = req.cookies.refresh_token || '';
+    const email = verifyRefresh(token);
+    if (!token || !email) {
+      res.statusCode = HttpStatusCode.UNAUTHORIZED;
+      res.end();
+      return;
+    }
+    const collection = client.db().collection('users');
+    const user = await collection.findOne({ email });
+    if (!user || !user.refresh_token) {
+      res.statusCode = HttpStatusCode.NOT_FOUND;
+      res.end();
+      return;
+    }
+    if (token !== user.refresh_token.token) {
+      res.statusCode = HttpStatusCode.UNAUTHORIZED;
+      res.end();
+      return;
+    }
+
+    const access_token = createAccessToken(user.email);
+    const accessDate = new Date();
+    accessDate.setMinutes(accessDate.getMinutes() + 20);
+    const refresh_token = createRefreshToken(user.email);
+    const refreshDate = new Date();
+    refreshDate.setDate(refreshDate.getDate() + 7);
+
+    const filter = { email };
+    const updateOrder = {
+      $set: {
+        refresh_token: {
+          token: refresh_token,
+          expires: refreshDate,
+        },
+      },
+    };
+    await collection.updateOne(filter, updateOrder);
+
+    res.setCookie('refresh_token', refresh_token, { expires: refreshDate });
+
+    res.statusCode = HttpStatusCode.OK;
+    res.send({ access_token: { token: access_token, expires: accessDate } });
   });
 }
 

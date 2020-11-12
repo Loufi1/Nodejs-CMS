@@ -12,7 +12,7 @@ app.use(queryParser);
 app.use(bodyParser);
 app.use(cookieParser);
 
-app.get('/test', async (req, res) => {
+app.get('/ping', async (req, res) => {
   res.statusCode = 200;
   res.end();
 });
