@@ -10,6 +10,7 @@ function routes(path, app) {
       { type: 'PAGE', slug },
       { projection: { type: 0 } }
     );
+
     if (
       !page ||
       (!isAuthenticated(req) &&
@@ -20,6 +21,7 @@ function routes(path, app) {
       res.end();
       return;
     }
+
     res.statusCode = HttpStatusCode.OK;
     res.send(page);
   });
@@ -72,7 +74,7 @@ function routes(path, app) {
     };
     const result = await collection.insertOne(post);
     res.statusCode = HttpStatusCode.CREATED;
-    res.send(result.ops[0]);
+    res.send({ ...result.ops[0], type: undefined });
   });
 
   app.put(path + '/:slug', async (req, res) => {
@@ -81,6 +83,7 @@ function routes(path, app) {
       res.end();
       return;
     }
+
     const { slug } = req.params;
     const collection = client.db().collection('posts');
     const page = await collection.findOne({ type: 'PAGE', slug });
@@ -100,6 +103,7 @@ function routes(path, app) {
       res.send({ error: 'Title cannot be empty' });
       return;
     }
+
     if (data.title !== undefined) {
       const formatedTitle = data.title
         .trim()
@@ -138,8 +142,10 @@ function routes(path, app) {
       return;
     }
     const { slug } = req.params;
+
     const collection = client.db().collection('posts');
     const result = await collection.deleteOne({ type: 'PAGE', slug });
+
     if (result.deletedCount === 1) {
       res.statusCode = HttpStatusCode.OK;
       res.end();

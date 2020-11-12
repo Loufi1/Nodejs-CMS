@@ -1,8 +1,10 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 const user = 'user';
 const pass = 'passwd';
 const db_url = 'localhost:27017/cms';
+
+const generateId = () => new ObjectId();
 
 const client = new MongoClient(`mongodb://${user}:${pass}@${db_url}`, {
   useUnifiedTopology: true,
@@ -44,9 +46,11 @@ client
       author: User.username
       content: string
       createdAt: Date (bonus)
-      updatedAt: Date (bonus)
     }
 
   */
 
-module.exports.client = client;
+module.exports = {
+  client,
+  generateId,
+};

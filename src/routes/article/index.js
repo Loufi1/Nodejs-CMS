@@ -1,14 +1,22 @@
 const { HttpStatusCode } = require('../../utils/http-status-code');
 const { isAuthenticated } = require('../../utils/auth-token');
-const { client } = require('../../utils/mongo-client');
+const { client, generateId } = require('../../utils/mongo-client');
 
 function routes(path, app) {
   app.get(path + '/:slug', async (req, res) => {
     const slug = req.params.slug;
     const collection = client.db().collection('posts');
-    const article = await collection.findOne({ slug, type: 'ARTICLE' });
+    const article = await collection.findOne(
+      { slug, type: 'ARTICLE' },
+      { projection: { type: 0 } }
+    );
 
-    if (!article) {
+    if (
+      !article ||
+      (!isAuthenticated(req) &&
+        article.publishDate &&
+        new Date(article.publishDate) > new Date())
+    ) {
       res.statusCode = HttpStatusCode.NOT_FOUND;
       res.send({ error: 'Article not found' });
       return;
@@ -58,11 +66,11 @@ function routes(path, app) {
       updatedAt: new Date(),
       publishDate,
       type: 'ARTICLE',
-      comment: [],
+      comments: [],
     };
     const result = await collection.insertOne(post);
     res.statusCode = HttpStatusCode.CREATED;
-    res.send(result.ops[0]);
+    res.send({ ...result.ops[0], type: undefined });
   });
 
   app.put(path + '/', async (req, res) => {
@@ -74,8 +82,8 @@ function routes(path, app) {
 
     const slug = req.params.slug;
     const collection = client.db().collection('posts');
-    const page = await collection.findOne({ type: 'ARTICLE', slug });
-    if (!page) {
+    const article = await collection.findOne({ type: 'ARTICLE', slug });
+    if (!article) {
       res.statusCode = HttpStatusCode.NOT_FOUND;
       res.end();
       return;
@@ -94,10 +102,10 @@ function routes(path, app) {
 
     if (data.title !== undefined) {
       const formatedTitle = data.title
-          .trim()
-          .split(' ')
-          .filter((f) => !!f)
-          .join(' ');
+        .trim()
+        .split(' ')
+        .filter((f) => !!f)
+        .join(' ');
       data.slug = formatedTitle.split(' ').join('-').toLowerCase();
       const alreadyOne = await collection.findOne({
         type: 'ARTICLE',
@@ -110,20 +118,25 @@ function routes(path, app) {
       }
     }
     const result = await collection.findOneAndUpdate(
-        { type: 'ARTICLE', slug },
-        {
-          $set: {
-            ...data,
-            updatedAt: new Date(),
-          },
+      { type: 'ARTICLE', slug },
+      {
+        $set: {
+          ...data,
+          updatedAt: new Date(),
         },
-        { returnOriginal: false }
+      },
+      { returnOriginal: false }
     );
     res.statusCode = HttpStatusCode.OK;
     res.send({ ...result.value, type: undefined });
   });
 
   app.delete(path + '/:slug', async (req, res) => {
+    if (!isAuthenticated(req)) {
+      res.statusCode = HttpStatusCode.UNAUTHORIZED;
+      res.end();
+      return;
+    }
     const slug = req.params.slug;
 
     const collection = client.db().collection('posts');
@@ -136,6 +149,75 @@ function routes(path, app) {
       res.statusCode = HttpStatusCode.NOT_FOUND;
       res.end();
     }
+  });
+
+  app.post(path + '/:slug/comment', async (req, res) => {
+    if (isAuthenticated(req) !== undefined) {
+      res.statusCode = HttpStatusCode.UNAUTHORIZED;
+      res.send({ error: 'Authors are not allowed to write comments.' });
+      return;
+    }
+    const { slug } = req.params;
+    const { username, content } = req.body;
+    if (!username.trim() || !content.trim()) {
+      res.statusCode = HttpStatusCode.BAD_REQUEST;
+      res.send({ error: 'you need to provide at title & content' });
+      return;
+    }
+
+    const filter = { slug, type: 'ARTICLE' };
+    const collection = client.db().collection('posts');
+    const article = await collection.findOne(filter);
+    if (!article) {
+      res.statusCode = HttpStatusCode.NOT_FOUND;
+      res.end();
+      return;
+    }
+    const _id = generateId().toString();
+    const comment = {
+      _id,
+      author: username.trim(),
+      content: content.trim(),
+      createdAt: new Date(),
+    };
+    const result = await collection.findOneAndUpdate(filter, {
+      $push: {
+        comments: comment,
+      },
+    });
+
+    res.statusCode = HttpStatusCode.OK;
+    res.send(comment);
+  });
+
+  app.delete(path + '/:slug/:commentId', async (req, res) => {
+    if (!isAuthenticated(req)) {
+      res.statusCode = HttpStatusCode.UNAUTHORIZED;
+      res.end();
+      return;
+    }
+
+    const { slug, commentId } = req.params;
+    const filter = { slug, type: 'ARTICLE' };
+    const collection = client.db().collection('posts');
+    const article = await collection.findOne(filter);
+    if (
+      !article ||
+      article.comments.findIndex((f) => f._id === commentId) === -1
+    ) {
+      res.statusCode = HttpStatusCode.NOT_FOUND;
+      res.end();
+      return;
+    }
+
+    const comments = article.comments.filter((f) => f._id !== commentId);
+    const result = await collection.findOneAndUpdate(filter, {
+      $set: {
+        comments,
+      },
+    });
+    res.statusCode = HttpStatusCode.OK;
+    res.end();
   });
 }
 

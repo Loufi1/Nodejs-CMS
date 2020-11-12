@@ -8,7 +8,7 @@ function routes(path, app) {
     let pages = [];
     const result = await collection.find(
       { type: 'PAGE' },
-      { projection: { _id: 1, slug: 1, title: 1, content: 1, publishDate: 1 } }
+      { projection: { _id: 0, slug: 1, title: 1, content: 1, publishDate: 1 } }
     );
     await result.forEach((e) => pages.push(e));
     if (!isAuthenticated(req)) {
