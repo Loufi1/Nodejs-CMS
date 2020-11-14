@@ -36,6 +36,9 @@ function routes(path, app) {
         'https://cms.qz.com/wp-content/uploads/2017/03/twitter_egg_blue.png',
     };
     const result = await collection.insertOne(user);
+    if (!result) {
+      throw Error('something goes wrong');
+    }
     res.statusCode = HttpStatusCode.CREATED;
     res.send({
       ...result.ops[0],

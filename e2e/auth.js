@@ -31,9 +31,17 @@ const me = async () => {
   }
 };
 
+const change_me = async (data) => {
+  try {
+    return await client.put('/auth/me', data);
+  } catch (e) {
+    return e.response;
+  }
+};
+
 const refresh = async () => {
   try {
-    return await client.get('/auth/me');
+    return await client.get('/auth/refresh');
   } catch (e) {
     return e.response;
   }
@@ -43,5 +51,6 @@ module.exports = {
   sign_Up,
   sign_In,
   me,
+  change_me,
   refresh,
 };

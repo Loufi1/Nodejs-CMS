@@ -5,6 +5,7 @@ class api {
     routes = [];
     paramRoutes = [];
     middlewares = [];
+    server;
 
     constructor() {
         this.middlewares.push({
