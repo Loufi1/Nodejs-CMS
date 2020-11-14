@@ -1,6 +1,6 @@
 'use strict';
 
-function bodyParser(req, res, next) {
+const bodyParser = () => (req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
   res.send = (pack) => res.end(JSON.stringify(pack));
   if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
@@ -17,6 +17,6 @@ function bodyParser(req, res, next) {
   } else {
     next(req, res);
   }
-}
+};
 
 module.exports = bodyParser;

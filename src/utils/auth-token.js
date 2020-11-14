@@ -19,8 +19,9 @@ const createRefreshToken = (userId) => {
 const isAuthenticated = (req) => {
   try {
     if (!req.headers['authorization']) return undefined;
-    return verify(req.headers.authorization.split(' ')[1], ACCESS_TOKEN_SECRET)
-      .userId;
+    const authArray = req.headers.authorization.split(' ');
+    if (authArray[0] !== 'Bearer') return undefined;
+    return verify(authArray[1], ACCESS_TOKEN_SECRET).userId;
   } catch (e) {
     return undefined;
   }

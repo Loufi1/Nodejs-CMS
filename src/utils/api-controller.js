@@ -94,14 +94,17 @@ class api {
     }
 
     async _redirect(req, res) {
+        req.exist = false;
         const index = this.routes.findIndex(
           elem => this._uniformize(elem.route) === this._uniformize(req.url) && elem.method === req.method
         );
         if (index !== -1) {
-            this._callRoute(req, res, this.routes[index].callback)
+            req.exist = true;
+            await this._callRoute(req, res, this.routes[index].callback)
         } else {
-            this._redirectParamRoutes(req, res);
+            await this._redirectParamRoutes(req, res);
         }
+        this._logger(req, res);
     }
 
     async _redirectParamRoutes(req, res) {
@@ -127,13 +130,35 @@ class api {
           }
         );
         if (index !== -1) {
-            this._callRoute(req, res, this.paramRoutes[index].callback);
+            req.exist = true;
+            await this._callRoute(req, res, this.paramRoutes[index].callback);
         } else {
             res.statusCode = HttpStatusCode.NOT_FOUND;
             res.end();
         }
     }
 
+    _logger(req, res) {
+        const methodColor = {
+            GET: '\x1b[32m%s',
+            POST: '\x1b[36m%s',
+            PUT: '\x1b[34m%s',
+            DELETE: '\x1b[31m%s',
+        }
+        const date = new Date().toLocaleString('en-GB', { timeZone: 'UTC' });
+        const { url, method } = req;
+        const statusCode = res.statusCode;
+        let stringStatus = Object.entries(HttpStatusCode).find(([field, value]) => value === statusCode)[0];
+        const response = `${statusCode} ${stringStatus}`;
+        const colorCode = res.statusCode >=300 ? '\x1b[31m%s' : '\x1b[32m%s';
+        const colorRoute = req.exist ? '\x1b[32m%s' : '\x1b[31m%s';
+        console.log(
+          `${date}: ${methodColor[method] || '\x1b[0m%s'}\x1b[0m - ${colorRoute}\x1b[0m - ${colorCode}\x1b[0m`,
+          '[' + method + ']',
+          url,
+          response
+        );
+    }
 }
 
 module.exports.api = api;

@@ -1,11 +1,11 @@
 const { HttpStatusCode } = require('../../utils/http-status-code');
-const { client } = require('../../utils/mongo-client');
+const { client, ObjectId } = require('../../utils/mongo-client');
 const hash = require('../../utils/hash');
 const {
   createAccessToken,
   createRefreshToken,
   isAuthenticated,
-  verifyRefresh
+  verifyRefresh,
 } = require('../../utils/auth-token');
 
 function routes(path, app) {
@@ -59,10 +59,10 @@ function routes(path, app) {
       return;
     }
 
-    const access_token = createAccessToken(user.email);
+    const access_token = createAccessToken(user._id);
     const accessDate = new Date();
     accessDate.setMinutes(accessDate.getMinutes() + 20);
-    const refresh_token = createRefreshToken(user.email);
+    const refresh_token = createRefreshToken(user._id);
     const refreshDate = new Date();
     refreshDate.setDate(refreshDate.getDate() + 7);
 
@@ -84,8 +84,8 @@ function routes(path, app) {
   });
 
   app.get(path + '/me', async (req, res) => {
-    const email = isAuthenticated(req);
-    if (!email) {
+    const userId = isAuthenticated(req);
+    if (!userId) {
       res.statusCode = HttpStatusCode.UNAUTHORIZED;
       res.end();
       return;
@@ -93,7 +93,7 @@ function routes(path, app) {
     const user = await client
       .db()
       .collection('users')
-      .findOne({ email }, { projection: { password: 0 } });
+      .findOne({ _id: ObjectId(userId) }, { projection: { password: 0 } });
     if (!user) {
       res.statusCode = HttpStatusCode.NOT_FOUND;
       res.end();
@@ -103,16 +103,62 @@ function routes(path, app) {
     res.send(user);
   });
 
+  app.put(path + '/me', async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      res.statusCode = HttpStatusCode.UNAUTHORIZED;
+      res.end();
+      return;
+    }
+    const users = client.db().collection('users');
+    const user = await users.findOne({ _id: ObjectId(userId) });
+    if (!user) {
+      res.statusCode = HttpStatusCode.NOT_FOUND;
+      res.end();
+      return;
+    }
+    const { oldPassword, newPassword, profilPic } = req.body;
+    const data = {};
+    if (profilPic) data.profilPic = profilPic;
+    if (oldPassword && newPassword) {
+      if (!hash.compare(oldPassword, user.password)) {
+        res.statusCode = HttpStatusCode.UNAUTHORIZED;
+        res.end();
+        return;
+      }
+      data.password = hash.hash512(newPassword);
+    } else if (oldPassword || newPassword) {
+      res.statusCode = HttpStatusCode.BAD_REQUEST;
+      res.send({
+        error: 'Need oldPassword & newPassword fields to change password',
+      });
+      return;
+    }
+    const result = await users.findOneAndUpdate(
+      { _id: ObjectId(userId) },
+      {
+        $set: {
+          ...user,
+          ...data,
+        },
+      },
+      { returnOriginal: false }
+    );
+
+    res.statusCode = HttpStatusCode.OK;
+    res.send({ ...result.value, password: undefined, _id: undefined });
+  });
+
   app.get(path + '/refresh', async (req, res) => {
     const token = req.cookies.refresh_token || '';
-    const email = verifyRefresh(token);
-    if (!token || !email) {
+    const userId = verifyRefresh(token);
+    if (!token || !userId) {
       res.statusCode = HttpStatusCode.UNAUTHORIZED;
       res.end();
       return;
     }
     const collection = client.db().collection('users');
-    const user = await collection.findOne({ email });
+    const user = await collection.findOne({ _id: ObjectId(userId) });
     if (!user || !user.refresh_token) {
       res.statusCode = HttpStatusCode.NOT_FOUND;
       res.end();
@@ -124,14 +170,14 @@ function routes(path, app) {
       return;
     }
 
-    const access_token = createAccessToken(user.email);
+    const access_token = createAccessToken(user._id);
     const accessDate = new Date();
     accessDate.setMinutes(accessDate.getMinutes() + 20);
-    const refresh_token = createRefreshToken(user.email);
+    const refresh_token = createRefreshToken(user._id);
     const refreshDate = new Date();
     refreshDate.setDate(refreshDate.getDate() + 7);
 
-    const filter = { email };
+    const filter = { _id: ObjectId(userId) };
     const updateOrder = {
       $set: {
         refresh_token: {

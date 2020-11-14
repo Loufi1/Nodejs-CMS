@@ -19,38 +19,8 @@ client
     console.error(e);
   });
 
-/*
-    Data Format:
-
-    User {
-      username: string
-      password: string (Hash)
-      roles: string[] ('Author' | 'Admin')
-      profilePic : string (url, avec valeur par default) (bonus)
-    }
-
-    Post {
-      title: string
-      content: string
-      picture: string (url) (bonus)
-      slug: string (title mis en minuscule et coller avec des '-')
-      createdAt: Date (bonus)
-      updatedAt: Date (bonus)
-      publishDate: Date
-      author: User.username
-      type: string ('ARTICLE' | 'PAGE')
-      comment: Comment[]
-    }
-
-    Comment {
-      author: User.username
-      content: string
-      createdAt: Date (bonus)
-    }
-
-  */
-
 module.exports = {
   client,
   generateId,
+  ObjectId,
 };

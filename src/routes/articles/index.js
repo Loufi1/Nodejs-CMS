@@ -8,7 +8,16 @@ function routes(path, app) {
     let articles = [];
     const result = await collection.find(
       { type: 'ARTICLE' },
-      { projection: { _id: 0, slug: 1, title: 1, content: 1, publishDate: 1 } }
+      {
+        projection: {
+          _id: 0,
+          slug: 1,
+          title: 1,
+          content: 1,
+          publishDate: 1,
+          author: 1,
+        },
+      }
     );
     await result.forEach((e) => articles.push(e));
     if (!isAuthenticated(req)) {

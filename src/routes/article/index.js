@@ -1,6 +1,6 @@
 const { HttpStatusCode } = require('../../utils/http-status-code');
 const { isAuthenticated } = require('../../utils/auth-token');
-const { client, generateId } = require('../../utils/mongo-client');
+const { client, generateId, ObjectId } = require('../../utils/mongo-client');
 
 function routes(path, app) {
   app.get(path + '/:slug', async (req, res) => {
@@ -27,8 +27,8 @@ function routes(path, app) {
   });
 
   app.post(path, async (req, res) => {
-    const email = isAuthenticated(req);
-    if (!email) {
+    const userId = isAuthenticated(req);
+    if (!userId) {
       res.statusCode = HttpStatusCode.UNAUTHORIZED;
       res.end();
       return;
@@ -46,7 +46,10 @@ function routes(path, app) {
       .filter((f) => !!f)
       .join(' ');
     const slug = formatedTitle.split(' ').join('-').toLowerCase();
-    const user = await client.db().collection('users').findOne({ email });
+    const user = await client
+      .db()
+      .collection('users')
+      .findOne({ _id: ObjectId(userId) });
 
     const collection = client.db().collection('posts');
     const alreadyOne = await collection.findOne({ slug, type: 'ARTICLE' });
@@ -73,7 +76,7 @@ function routes(path, app) {
     res.send({ ...result.ops[0], type: undefined });
   });
 
-  app.put(path + '/', async (req, res) => {
+  app.put(path + '/:slug', async (req, res) => {
     if (!isAuthenticated(req)) {
       res.statusCode = HttpStatusCode.UNAUTHORIZED;
       res.end();
@@ -89,8 +92,8 @@ function routes(path, app) {
       return;
     }
 
-    const { title, content, author, publishDate } = req.body;
-    const data = { title, content, author, publishDate };
+    const { title, content, publishDate } = req.body;
+    const data = { title, content, publishDate };
     Object.keys(data).forEach((e) => {
       if (data[e] === undefined) delete data[e];
     });

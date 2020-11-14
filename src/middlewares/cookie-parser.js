@@ -21,7 +21,7 @@ const clearCookie = (res) => (name) => {
   });
 };
 
-function cookieParser(req, res, next) {
+const cookieParser = () => (req, res, next) => {
   res.setCookie = setCookie(res);
   res.clearCookie = clearCookie(res);
   req.cookies = {};
