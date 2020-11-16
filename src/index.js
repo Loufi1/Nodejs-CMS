@@ -5,10 +5,8 @@ const queryParser = require('./middlewares/query-parser');
 const cookieParser = require('./middlewares/cookie-parser');
 const cors = require('./middlewares/cors');
 
-const { client, ObjectId } = require('./utils/mongo-client');
-
-const port = 3000;
-const hostname = '127.0.0.1';
+const port = process.env.PORT || 3000;
+const hostname = '0.0.0.0';
 const app = new HomemadeExpress();
 
 app.use(queryParser());

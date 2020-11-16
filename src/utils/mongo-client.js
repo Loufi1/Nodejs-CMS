@@ -2,7 +2,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 
 const user = 'user';
 const pass = 'passwd';
-const db_url = 'localhost:27017/cms';
+const db_url = 'mongo/cms';
 
 const generateId = () => new ObjectId();
 

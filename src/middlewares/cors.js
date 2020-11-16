@@ -21,7 +21,8 @@ const cors = (config) => (req, res, next) => {
     const date = new Date().toLocaleString('en-GB', { timeZone: 'UTC' });
     res.statusCode = HttpStatusCode.OK;
     res.end();
-    console.log(`${date}: \x1b[33m[${req.method}]\x1b[0m - ${req.url} - \x1b[32m${HttpStatusCode.OK} OK\x1b[0m`);
+    if (process.env.SHOW_OPTIONS_REQUESTS === "true")
+      console.log(`${date}: \x1b[33m[${req.method}]\x1b[0m - ${req.url} - \x1b[32m${HttpStatusCode.OK} OK\x1b[0m`);
     return;
   }
   next(req, res);

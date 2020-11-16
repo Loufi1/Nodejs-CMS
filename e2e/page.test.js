@@ -21,6 +21,7 @@ const getFutureDate = () => {
   date.setDate(date.getDate() + 7);
   return date;
 };
+
 const pageTwoSlug = 'headless-cms-testing-e2e-future-publish';
 const pageTwo = {
   title: 'Headless Cms Testing e2e future publish',
@@ -39,11 +40,17 @@ beforeAll(async () => {
   }
 });
 
-afterAll(async () => {
-  return await client.close();
+describe('Page feature tests', () => {
+  test('Valid creation of page', async () => {
+    const result = await page_post(pageOne);
+    expect(result.status).toBe(HttpStatusCode.CREATED);
+    expect(result.data.title).toBe(pageOne.title);
+    expect(result.data.content).toBe(pageOne.content);
+    expect(result.data.author).toBe(email);
+  });
 });
 
-describe('Page feature tests', () => {
+describe('another Page feature tests', () => {
   test('Valid creation of page', async () => {
     const result = await page_post(pageOne);
     expect(result.status).toBe(HttpStatusCode.CREATED);
