@@ -50,7 +50,10 @@ function routes(path, app) {
       .filter((f) => !!f)
       .join(' ');
     const slug = formatedTitle.split(' ').join('-').toLowerCase();
-    const user = await client.db().collection('users').findOne({ _id: ObjectId(userId) });
+    const user = await client
+      .db()
+      .collection('users')
+      .findOne({ _id: ObjectId(userId) });
 
     const collection = client.db().collection('posts');
     const alreadyOne = await collection.findOne({ slug, type: 'PAGE' });

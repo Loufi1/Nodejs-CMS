@@ -183,7 +183,7 @@ function routes(path, app) {
       content: content.trim(),
       createdAt: new Date(),
     };
-    const result = await collection.findOneAndUpdate(filter, {
+    await collection.findOneAndUpdate(filter, {
       $push: {
         comments: comment,
       },
@@ -214,7 +214,7 @@ function routes(path, app) {
     }
 
     const comments = article.comments.filter((f) => f._id !== commentId);
-    const result = await collection.findOneAndUpdate(filter, {
+    await collection.findOneAndUpdate(filter, {
       $set: {
         comments,
       },

@@ -9,6 +9,7 @@
     "db:up": "docker-compose up -d mongo",
     "db:down": "docker-compose down",
     "db:drop": "mongo cms -u user -p passwd db-drop.js",
+    "lint": "eslint ./src --ext .js",
     "test": "jest"
   },
   "repository": {

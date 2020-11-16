@@ -32,6 +32,6 @@ const cookieParser = () => (req, res, next) => {
     });
   }
   next(req, res);
-}
+};
 
 module.exports = cookieParser;
