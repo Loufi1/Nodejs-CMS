@@ -19,7 +19,7 @@ services:
         - "${PORT}:${PORT}"
       environment:
         - "PORT=${PORT}"
-        - "SHOW_OPTIONS_REQUESTS=${SHOW_OPTIONS_REQUESTS}"
+        - "SHOW_OPTIONS=${SHOW_OPTIONS}"
       links:
         - mongo
       depends_on:

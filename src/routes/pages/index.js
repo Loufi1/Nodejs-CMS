@@ -24,7 +24,7 @@ function routes(path, app) {
     });
     if (!isAuthenticated(req)) {
       pages = pages.filter(
-        (f) => f.publishDate && new Date(f.publishDate) < new Date()
+        (f) => f.publishDate !== null && new Date(f.publishDate) < new Date()
       );
     }
     const { per_page = 20, page } = req.query;

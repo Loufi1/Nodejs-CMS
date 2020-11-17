@@ -22,7 +22,7 @@ function routes(path, app) {
     await result.forEach((e) => articles.push(e));
     if (!isAuthenticated(req)) {
       articles = articles.filter(
-        (f) => f.publishDate && new Date(f.publishDate) < new Date()
+        (f) => f.publishDate !== null && new Date(f.publishDate) < new Date()
       );
     }
     const { per_page = 20, page } = req.query;

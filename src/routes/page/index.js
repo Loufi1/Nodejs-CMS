@@ -14,8 +14,7 @@ function routes(path, app) {
     if (
       !page ||
       (!isAuthenticated(req) &&
-        page.publishDate &&
-        new Date(page.publishDate) > new Date())
+        (page.publishDate === null || new Date(page.publishDate) > new Date()))
     ) {
       res.statusCode = HttpStatusCode.NOT_FOUND;
       res.end();

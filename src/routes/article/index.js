@@ -14,8 +14,8 @@ function routes(path, app) {
     if (
       !article ||
       (!isAuthenticated(req) &&
-        article.publishDate &&
-        new Date(article.publishDate) > new Date())
+        (article.publishDate === null ||
+          new Date(article.publishDate) > new Date()))
     ) {
       res.statusCode = HttpStatusCode.NOT_FOUND;
       res.send({ error: 'Article not found' });
@@ -171,7 +171,11 @@ function routes(path, app) {
     const filter = { slug, type: 'ARTICLE' };
     const collection = client.db().collection('posts');
     const article = await collection.findOne(filter);
-    if (!article) {
+    if (
+      !article ||
+      article.publishDate === null ||
+      new Date(article.publishDate) > new Date()
+    ) {
       res.statusCode = HttpStatusCode.NOT_FOUND;
       res.end();
       return;
